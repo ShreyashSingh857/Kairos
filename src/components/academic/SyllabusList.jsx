@@ -29,6 +29,26 @@ export default function SyllabusList({ subject, onClose }) {
                     </button>
                 </div>
 
+                {/* Legend */}
+                <div className="px-6 py-3 bg-slate-950/50 border-b border-slate-800 flex flex-wrap gap-4 text-xs text-slate-400">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-slate-500"></div>
+                        <span>Not Started</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <span>Learning</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                        <span>Reviewing</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span>Mastered</span>
+                    </div>
+                </div>
+
                 {/* List */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-3">
                     {isLoading ? (

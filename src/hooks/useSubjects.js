@@ -16,10 +16,11 @@ export function useSubjects() {
                 .from('subjects')
                 .select(`
           *,
-          attendance_logs (status),
+          attendance_logs (id, status, created_at),
           chapters (status)
         `)
-                .eq('user_id', user.id);
+                .eq('user_id', user.id)
+                .order('created_at', { foreignTable: 'attendance_logs', ascending: false });
 
             if (error) throw error;
 
@@ -53,7 +54,12 @@ export function useSubjects() {
         mutationFn: async (newSubject) => {
             const { data, error } = await supabase
                 .from('subjects')
-                .insert([{ ...newSubject, user_id: user.id }])
+                .insert([{
+                    ...newSubject,
+                    user_id: user.id,
+                    // Ensure category is set, default to 'academic' if missing
+                    category: newSubject.category || 'academic'
+                }])
                 .select()
                 .single();
             if (error) throw error;
@@ -89,11 +95,39 @@ export function useSubjects() {
         },
     });
 
+    const deleteAttendanceLog = useMutation({
+        mutationFn: async (logId) => {
+            const { error } = await supabase
+                .from('attendance_logs')
+                .delete()
+                .eq('id', logId);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['subjects']);
+        },
+    });
+
+    const updateAttendanceLog = useMutation({
+        mutationFn: async ({ logId, status }) => {
+            const { error } = await supabase
+                .from('attendance_logs')
+                .update({ status })
+                .eq('id', logId);
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['subjects']);
+        },
+    });
+
     return {
         subjects,
         isLoading,
         addSubject,
         markAttendance,
         deleteSubject,
+        deleteAttendanceLog,
+        updateAttendanceLog,
     };
 }

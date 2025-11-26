@@ -1,26 +1,3 @@
--- ==========================================
--- KAIROS COMPLETE DATABASE SCHEMA
--- ==========================================
-
--- 1. PROFILES (Extends auth.users)
-create table public.profiles (
-  id uuid references auth.users(id) on delete cascade not null primary key,
-  username text,
-  full_name text,
-  avatar_url text,
-  caloric_target int default 2000,
-  hydration_target int default 2500, -- in ml
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
--- Enable RLS for profiles
-alter table public.profiles enable row level security;
-
-create policy "Users can view their own profile"
-  on public.profiles for select
-  using (auth.uid() = id);
-
 create policy "Users can update their own profile"
   on public.profiles for update
   using (auth.uid() = id);
@@ -160,5 +137,62 @@ create table public.daily_metrics (
 alter table public.daily_metrics enable row level security;
 
 -- Policies
-create policy "Users can manage their own daily metrics"
-  on public.daily_metrics for all using (auth.uid() = user_id);
+-- ==========================================
+-- 5. INSTITUTIONS
+-- ==========================================
+
+create table public.institutions (
+  id uuid default gen_random_uuid() primary key,
+  name text unique not null,
+  type text, -- 'college', 'school', 'university', etc.
+  created_at timestamptz default now()
+);
+
+-- Add institution_id to profiles
+alter table public.profiles add column institution_id uuid references public.institutions(id);
+
+-- Enable RLS for Institutions
+alter table public.institutions enable row level security;
+
+-- Policies
+create policy "Institutions are viewable by everyone"
+  on public.institutions for select
+  using (true);
+
+create policy "Authenticated users can insert institutions"
+  on public.institutions for insert
+  with check (auth.role() = 'authenticated');
+
+
+-- ==========================================
+-- 6. RESOURCES
+-- ==========================================
+
+create table public.resources (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) not null,
+  title text not null,
+  type text check (type in ('pdf', 'word', 'image', 'link')) not null,
+  url text not null,
+  project_id uuid references public.projects(id) on delete cascade,
+  chapter_id uuid references public.chapters(id) on delete cascade,
+  created_at timestamptz default now(),
+  -- Ensure a resource belongs to EITHER a project OR a chapter, not both (optional, but good practice)
+  constraint resource_belongs_to_one_entity check (
+    (project_id is not null and chapter_id is null) or
+    (project_id is null and chapter_id is not null)
+  )
+);
+
+-- Enable RLS for Resources
+alter table public.resources enable row level security;
+
+-- Policies
+create policy "Users can manage their own resources"
+  on public.resources for all
+  using (auth.uid() = user_id);
+
+-- Update resources type check to allow 'other'
+-- Run this in your Supabase SQL Editor if you have already created the table
+-- alter table public.resources drop constraint if exists resources_type_check;
+-- alter table public.resources add constraint resources_type_check check (type in ('pdf', 'word', 'image', 'link', 'other'));

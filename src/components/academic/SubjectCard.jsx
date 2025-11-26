@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Plus, Minus, BookOpen, Trash2, AlertTriangle } from 'lucide-react';
+import { Plus, Minus, Trash2, AlertTriangle, History } from 'lucide-react';
 import AttendanceDial from './AttendanceDial';
 import { useSubjects } from '../../hooks/useSubjects';
-import SyllabusList from './SyllabusList';
+import AttendanceHistory from './AttendanceHistory';
 
 export default function SubjectCard({ subject }) {
     const { markAttendance, deleteSubject } = useSubjects();
-    const [isSyllabusOpen, setIsSyllabusOpen] = useState(false);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleAttendance = (status) => {
@@ -70,20 +70,6 @@ export default function SubjectCard({ subject }) {
                 </div>
 
                 <div className="space-y-4">
-                    {/* Study Progress Bar */}
-                    <div>
-                        <div className="flex justify-between text-xs text-slate-400 mb-1">
-                            <span>Syllabus Mastered</span>
-                            <span>{subject.studyProgress}%</span>
-                        </div>
-                        <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                            <div
-                                className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                                style={{ width: `${subject.studyProgress}%` }}
-                            />
-                        </div>
-                    </div>
-
                     <div className="flex items-center justify-between bg-slate-950 rounded-lg p-3">
                         <span className="text-sm text-slate-400">Mark Attendance</span>
                         <div className="flex gap-2">
@@ -105,20 +91,22 @@ export default function SubjectCard({ subject }) {
                     </div>
 
                     <div className="flex items-center justify-between text-sm text-slate-500">
-                        <span>{subject.presentClasses} / {subject.totalClasses} Classes</span>
-                        <button
-                            onClick={() => setIsSyllabusOpen(true)}
-                            className="flex items-center gap-1 hover:text-blue-400 transition-colors"
-                        >
-                            <BookOpen className="w-4 h-4" />
-                            Syllabus
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <span>{subject.presentClasses} / {subject.totalClasses} Classes</span>
+                            <button
+                                onClick={() => setIsHistoryOpen(true)}
+                                className="p-1 hover:bg-slate-800 rounded-md text-slate-500 hover:text-blue-400 transition-colors"
+                                title="View History"
+                            >
+                                <History className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {isSyllabusOpen && (
-                <SyllabusList subject={subject} onClose={() => setIsSyllabusOpen(false)} />
+            {isHistoryOpen && (
+                <AttendanceHistory subject={subject} onClose={() => setIsHistoryOpen(false)} />
             )}
         </>
     );
