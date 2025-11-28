@@ -99,6 +99,7 @@ create table public.tasks (
   priority text check (priority in ('low', 'medium', 'high')) default 'medium',
   status text check (status in ('backlog', 'todo', 'in_progress', 'review', 'done')) default 'todo',
   due_date timestamptz,
+  duration int default 15, -- Duration in minutes
   is_recurring boolean default false,
   created_at timestamptz default now()
 );
@@ -126,6 +127,9 @@ create table public.daily_metrics (
   date date default current_date,
   calories_consumed int default 0,
   protein_consumed int default 0, -- in grams
+  carbs_consumed int default 0, -- in grams
+  fats_consumed int default 0, -- in grams
+  calories_burned int default 0, -- Total calories burned (BMR + Exercise)
   water_intake int default 0, -- in ml
   mood_rating int check (mood_rating >= 1 and mood_rating <= 10),
   sleep_hours numeric(3, 1),
@@ -133,11 +137,94 @@ create table public.daily_metrics (
   unique(user_id, date) -- One entry per day per user
 );
 
+-- Function to archive old logs (keep totals in daily_metrics)
+create or replace function public.archive_old_logs()
+returns void as $$
+begin
+  -- Delete food logs older than 30 days
+  delete from public.food_logs
+  where date < current_date - interval '30 days';
+
+  -- Delete exercise logs older than 30 days
+  delete from public.exercise_logs
+  where date < current_date - interval '30 days';
+end;
+$$ language plpgsql security definer;
+
 -- Enable RLS for Vitality Hub
 alter table public.daily_metrics enable row level security;
 
 -- Policies
--- ==========================================
+create policy "Users can manage their own daily metrics"
+  on public.daily_metrics for all
+  using (auth.uid() = user_id);
+
+  using (auth.uid() = user_id);
+
+-- Diet Plans Table
+create table public.diet_plans (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) not null,
+  day_of_week text not null check (day_of_week in ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')),
+  meal_type text not null check (meal_type in ('Breakfast', 'Lunch', 'Dinner', 'Snack')),
+  meal_name text not null,
+  calories int default 0,
+  protein int default 0,
+  carbs int default 0,
+  fats int default 0,
+  created_at timestamptz default now()
+);
+
+-- Food Logs Table
+create table public.food_logs (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) not null,
+  date date default current_date,
+  food_name text not null,
+  calories int default 0,
+  protein int default 0,
+  carbs int default 0,
+  fats int default 0,
+  created_at timestamptz default now()
+);
+
+-- Exercise Logs Table
+create table public.exercise_logs (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users(id) not null,
+  date date default current_date,
+  exercise_type text not null, -- 'Running', 'Walking', 'Gym', etc.
+  duration_minutes int default 0,
+  calories_burned int default 0,
+  sets int,
+  reps int,
+  weight_lifted numeric, -- in kg
+  created_at timestamptz default now()
+);
+
+-- Enable RLS
+alter table public.diet_plans enable row level security;
+alter table public.food_logs enable row level security;
+alter table public.exercise_logs enable row level security;
+
+-- Policies
+create policy "Users can manage their own diet plans"
+  on public.diet_plans for all
+  using (auth.uid() = user_id);
+
+create policy "Users can manage their own food logs"
+  on public.food_logs for all
+  using (auth.uid() = user_id);
+
+create policy "Users can manage their own exercise logs"
+  on public.exercise_logs for all
+  using (auth.uid() = user_id);
+
+-- NOTE: For existing profiles table, run these in SQL Editor:
+-- alter table public.profiles add column fitness_goal text check (fitness_goal in ('weight_loss', 'weight_gain', 'maintenance'));
+-- alter table public.profiles add column activity_level text check (activity_level in ('sedentary', 'light', 'moderate', 'active'));
+-- alter table public.profiles add column gender text check (gender in ('male', 'female', 'other'));
+-- alter table public.profiles add column dob date;
 -- 5. INSTITUTIONS
 -- ==========================================
 
@@ -196,3 +283,83 @@ create policy "Users can manage their own resources"
 -- Run this in your Supabase SQL Editor if you have already created the table
 -- alter table public.resources drop constraint if exists resources_type_check;
 -- alter table public.resources add constraint resources_type_check check (type in ('pdf', 'word', 'image', 'link', 'other'));
+
+-- ==========================================
+-- 7. COLLABORATION & PUBLIC RESOURCES
+-- ==========================================
+
+-- Project Members Table
+create table public.project_members (
+  id uuid default gen_random_uuid() primary key,
+  project_id uuid references public.projects(id) on delete cascade not null,
+  user_id uuid references auth.users(id) not null,
+  role text check (role in ('owner', 'editor', 'viewer')) default 'editor',
+  joined_at timestamptz default now(),
+  unique(project_id, user_id)
+);
+
+-- Add is_public to resources
+-- Run: alter table public.resources add column is_public boolean default false;
+alter table public.resources add column is_public boolean default false;
+
+-- Enable RLS
+alter table public.project_members enable row level security;
+
+-- Policies for Project Members
+create policy "Users can view members of their projects"
+  on public.project_members for select
+  using (
+    auth.uid() = user_id or 
+    exists (select 1 from public.projects where id = project_members.project_id and user_id = auth.uid()) or
+    exists (select 1 from public.project_members pm where pm.project_id = project_members.project_id and pm.user_id = auth.uid())
+  );
+
+create policy "Project owners can manage members"
+  on public.project_members for all
+  using (
+    exists (select 1 from public.projects where id = project_members.project_id and user_id = auth.uid())
+  );
+
+-- Update Projects Policy to include members
+create policy "Users can view projects they are members of"
+  on public.projects for select
+  using (
+    auth.uid() = user_id or
+    exists (select 1 from public.project_members where project_id = projects.id and user_id = auth.uid())
+  );
+
+-- Update Tasks Policy to include project members
+create policy "Project members can view tasks"
+  on public.tasks for select
+  using (
+    auth.uid() = user_id or
+    exists (select 1 from public.project_members where project_id = tasks.project_id and user_id = auth.uid())
+  );
+
+create policy "Project members can create/update tasks"
+  on public.tasks for insert
+  with check (
+    auth.uid() = user_id or
+    exists (select 1 from public.project_members where project_id = tasks.project_id and user_id = auth.uid())
+  );
+  
+create policy "Project members can update tasks"
+  on public.tasks for update
+  using (
+    auth.uid() = user_id or
+    exists (select 1 from public.project_members where project_id = tasks.project_id and user_id = auth.uid())
+  );
+
+-- Update Resources Policy for Public Access & Collaboration
+create policy "Users can view public resources from their institution"
+  on public.resources for select
+  using (
+    (is_public = true and exists (
+      select 1 from public.profiles p1
+      join public.profiles p2 on p1.institution_id = p2.institution_id
+      where p1.id = resources.user_id and p2.id = auth.uid()
+    )) or
+    auth.uid() = user_id or
+    exists (select 1 from public.project_members where project_id = resources.project_id and user_id = auth.uid())
+  );
+

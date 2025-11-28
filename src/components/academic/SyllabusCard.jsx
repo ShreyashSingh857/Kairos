@@ -7,7 +7,7 @@ export default function SyllabusCard({ subject }) {
 
     return (
         <>
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col justify-between hover:border-slate-700 transition-colors relative group h-full">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 flex flex-col justify-between hover:border-slate-700 transition-colors relative group h-full">
 
                 <div className="mb-6">
                     <h3 className="text-xl font-bold text-white mb-1">{subject.name}</h3>

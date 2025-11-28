@@ -19,7 +19,7 @@ export default function SubjectCard({ subject }) {
 
     return (
         <>
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col justify-between hover:border-slate-700 transition-colors relative group">
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 flex flex-col justify-between hover:border-slate-700 transition-colors relative group">
 
                 {/* Delete Button (Top Right) */}
                 <button

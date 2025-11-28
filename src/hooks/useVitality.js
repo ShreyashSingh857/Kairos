@@ -7,7 +7,7 @@ export function useVitality() {
     const queryClient = useQueryClient();
     const today = new Date().toISOString().split('T')[0];
 
-    const { data: metrics, isLoading } = useQuery({
+    const { data: metrics, isLoading, refetch } = useQuery({
         queryKey: ['vitality', user?.id, today],
         queryFn: async () => {
             if (!user) return null;
@@ -28,6 +28,7 @@ export function useVitality() {
                 water_intake: 0,
                 sleep_hours: 0,
                 mood_rating: 5,
+                calories_burned: 0, // Ensure this defaults to 0
             };
         },
         enabled: !!user,
@@ -65,5 +66,6 @@ export function useVitality() {
         metrics,
         isLoading,
         updateMetric,
+        refetch,
     };
 }

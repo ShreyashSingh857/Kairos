@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Plus, Loader2, ListTodo, FolderKanban, Brain } from 'lucide-react';
+import { Plus, Loader2, ListTodo, FolderKanban, Brain, Calendar } from 'lucide-react';
 import { useProductivity } from '../hooks/useProductivity';
 import { useSubjects } from '../hooks/useSubjects';
 import { useProjects } from '../hooks/useProjects';
 import KanbanBoard from '../components/productivity/KanbanBoard';
 import ProjectCard from '../components/productivity/ProjectCard';
 import SyllabusCard from '../components/academic/SyllabusCard';
+import DayPlanner from '../components/productivity/DayPlanner';
 
 export default function ProductivityHub() {
     const { tasks, isLoading: isTasksLoading, addTask, updateTaskStatus, deleteTask } = useProductivity();
@@ -54,31 +55,41 @@ export default function ProductivityHub() {
     const selfLearningSubjects = subjects?.filter(s => s.category === 'self_learning') || [];
 
     return (
-        <div className="min-h-screen bg-slate-950 p-8 flex flex-col">
+        <div className="min-h-screen bg-slate-950 p-4 md:p-8 flex flex-col w-full max-w-full overflow-x-hidden">
             <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col">
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-white mb-2">Productivity Hub</h1>
-                        <p className="text-slate-400">Manage your projects, tasks, and learning goals.</p>
+                        <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Productivity Hub</h1>
+                        <p className="text-sm md:text-base text-slate-400">Manage your projects, tasks, and learning goals.</p>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 flex">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
+                        <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 flex flex-wrap gap-1">
                             <button
                                 onClick={() => setActiveTab('tasks')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'tasks'
-                                        ? 'bg-blue-600 text-white shadow-lg'
-                                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'tasks'
+                                    ? 'bg-blue-600 text-white shadow-lg'
+                                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                     }`}
                             >
                                 <ListTodo className="w-4 h-4" />
                                 Tasks
                             </button>
                             <button
+                                onClick={() => setActiveTab('day_planner')}
+                                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'day_planner'
+                                    ? 'bg-purple-600 text-white shadow-lg'
+                                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                                    }`}
+                            >
+                                <Calendar className="w-4 h-4" />
+                                Day Planner
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('projects')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'projects'
-                                        ? 'bg-blue-600 text-white shadow-lg'
-                                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'projects'
+                                    ? 'bg-blue-600 text-white shadow-lg'
+                                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                     }`}
                             >
                                 <FolderKanban className="w-4 h-4" />
@@ -86,9 +97,9 @@ export default function ProductivityHub() {
                             </button>
                             <button
                                 onClick={() => setActiveTab('self_learning')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === 'self_learning'
-                                        ? 'bg-blue-600 text-white shadow-lg'
-                                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'self_learning'
+                                    ? 'bg-blue-600 text-white shadow-lg'
+                                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                     }`}
                             >
                                 <Brain className="w-4 h-4" />
@@ -98,10 +109,10 @@ export default function ProductivityHub() {
 
                         <button
                             onClick={() => setIsModalOpen(true)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors whitespace-nowrap"
                         >
                             <Plus className="w-5 h-5" />
-                            {activeTab === 'tasks' ? 'Add Task' : activeTab === 'projects' ? 'Add Project' : 'Add Skill'}
+                            {activeTab === 'tasks' || activeTab === 'day_planner' ? 'Add Task' : activeTab === 'projects' ? 'Add Project' : 'Add Skill'}
                         </button>
                     </div>
                 </div>
@@ -113,6 +124,10 @@ export default function ProductivityHub() {
                             onStatusChange={(taskId, status) => updateTaskStatus.mutate({ taskId, status })}
                             onDeleteTask={(taskId) => deleteTask.mutate(taskId)}
                         />
+                    )}
+
+                    {activeTab === 'day_planner' && (
+                        <DayPlanner />
                     )}
 
                     {activeTab === 'projects' && (
@@ -149,10 +164,10 @@ export default function ProductivityHub() {
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
                         <div className="bg-slate-900 rounded-xl p-6 w-full max-w-md border border-slate-800">
                             <h2 className="text-xl font-bold text-white mb-4">
-                                {activeTab === 'tasks' ? 'Add New Task' : activeTab === 'projects' ? 'Add New Project' : 'Add New Skill'}
+                                {activeTab === 'tasks' || activeTab === 'day_planner' ? 'Add New Task' : activeTab === 'projects' ? 'Add New Project' : 'Add New Skill'}
                             </h2>
 
-                            {activeTab === 'tasks' && (
+                            {(activeTab === 'tasks' || activeTab === 'day_planner') && (
                                 <form onSubmit={handleAddTask} className="space-y-4">
                                     <div>
                                         <label className="block text-sm font-medium text-slate-400 mb-1">Title</label>
@@ -186,9 +201,9 @@ export default function ProductivityHub() {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-400 mb-1">Due Date</label>
+                                            <label className="block text-sm font-medium text-slate-400 mb-1">Due Date & Time</label>
                                             <input
-                                                type="date"
+                                                type="datetime-local"
                                                 value={newTask.due_date}
                                                 onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
                                                 className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"

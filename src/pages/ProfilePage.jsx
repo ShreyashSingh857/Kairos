@@ -22,7 +22,11 @@ export default function ProfilePage() {
         hydration_target: 2500,
         weight: '',
         height: '',
-        institution_id: null
+        institution_id: null,
+        gender: '',
+        dob: '',
+        activity_level: '',
+        fitness_goal: ''
     });
 
     // Institution Search State
@@ -51,7 +55,11 @@ export default function ProfilePage() {
                         hydration_target: data.hydration_target || 2500,
                         weight: data.weight || '',
                         height: data.height || '',
-                        institution_id: data.institution_id
+                        institution_id: data.institution_id,
+                        gender: data.gender || '',
+                        dob: data.dob || '',
+                        activity_level: data.activity_level || '',
+                        fitness_goal: data.fitness_goal || ''
                     });
                     if (data.institutions?.name) {
                         setInstitutionSearch(data.institutions.name);
@@ -408,7 +416,7 @@ export default function ProfilePage() {
                                 <Activity className="w-5 h-5 text-pink-500" />
                                 Health & Metrics
                             </h2>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-400 mb-1">Weight (kg)</label>
                                     <input
@@ -430,24 +438,73 @@ export default function ProfilePage() {
                                         placeholder="e.g. 175"
                                     />
                                 </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-400 mb-1">Daily Calories (kcal)</label>
-                                <input
-                                    type="number"
-                                    value={profile.caloric_target}
-                                    onChange={(e) => setProfile({ ...profile, caloric_target: parseInt(e.target.value) })}
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-400 mb-1">Daily Water (ml)</label>
-                                <input
-                                    type="number"
-                                    value={profile.hydration_target}
-                                    onChange={(e) => setProfile({ ...profile, hydration_target: parseInt(e.target.value) })}
-                                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">Gender</label>
+                                    <select
+                                        value={profile.gender || ''}
+                                        onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">Date of Birth</label>
+                                    <input
+                                        type="date"
+                                        value={profile.dob || ''}
+                                        onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">Activity Level</label>
+                                    <select
+                                        value={profile.activity_level || ''}
+                                        onChange={(e) => setProfile({ ...profile, activity_level: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">Select Activity Level</option>
+                                        <option value="sedentary">Sedentary (Little/No Exercise)</option>
+                                        <option value="light">Light (1-3 days/week)</option>
+                                        <option value="moderate">Moderate (3-5 days/week)</option>
+                                        <option value="active">Active (6-7 days/week)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">Fitness Goal</label>
+                                    <select
+                                        value={profile.fitness_goal || ''}
+                                        onChange={(e) => setProfile({ ...profile, fitness_goal: e.target.value })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">Select Goal</option>
+                                        <option value="weight_loss">Weight Loss</option>
+                                        <option value="maintenance">Maintenance</option>
+                                        <option value="weight_gain">Weight Gain</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">Daily Calories (kcal)</label>
+                                    <input
+                                        type="number"
+                                        value={profile.caloric_target}
+                                        onChange={(e) => setProfile({ ...profile, caloric_target: parseInt(e.target.value) })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1">Daily Water (ml)</label>
+                                    <input
+                                        type="number"
+                                        value={profile.hydration_target}
+                                        onChange={(e) => setProfile({ ...profile, hydration_target: parseInt(e.target.value) })}
+                                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

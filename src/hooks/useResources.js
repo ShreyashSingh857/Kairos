@@ -94,3 +94,30 @@ export function useResources(projectId = null, chapterId = null) {
         uploadFile
     };
 }
+
+export function usePublicResources() {
+    const { user } = useAuth();
+
+    const { data: publicResources, isLoading } = useQuery({
+        queryKey: ['public-resources', user?.id],
+        queryFn: async () => {
+            if (!user) return [];
+
+            // RLS policy "Users can view public resources from their institution" handles the filtering
+            const { data, error } = await supabase
+                .from('resources')
+                .select(`
+                    *,
+                    profiles:user_id (full_name, avatar_url)
+                `)
+                .eq('is_public', true)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            return data;
+        },
+        enabled: !!user,
+    });
+
+    return { publicResources, isLoading };
+}

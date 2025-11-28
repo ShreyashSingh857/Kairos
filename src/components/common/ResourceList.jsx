@@ -6,7 +6,7 @@ export default function ResourceList({ projectId, chapterId }) {
     const { resources, isLoading, addResource, deleteResource, uploadFile } = useResources(projectId, chapterId);
     const [isAdding, setIsAdding] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-    const [newResource, setNewResource] = useState({ title: '', type: 'link', url: '' });
+    const [newResource, setNewResource] = useState({ title: '', type: 'link', url: '', is_public: false });
     const [selectedFile, setSelectedFile] = useState(null);
 
     const handleSubmit = async (e) => {
@@ -25,7 +25,7 @@ export default function ResourceList({ projectId, chapterId }) {
             });
 
             setIsAdding(false);
-            setNewResource({ title: '', type: 'link', url: '' });
+            setNewResource({ title: '', type: 'link', url: '', is_public: false });
             setSelectedFile(null);
         } catch (error) {
             console.error("Failed to add resource:", error);
@@ -110,6 +110,21 @@ export default function ResourceList({ projectId, chapterId }) {
                             />
                         )}
                     </div>
+
+                    {!projectId && (
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="is_public"
+                                checked={newResource.is_public || false}
+                                onChange={(e) => setNewResource({ ...newResource, is_public: e.target.checked })}
+                                className="rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-blue-500"
+                            />
+                            <label htmlFor="is_public" className="text-xs text-slate-400 select-none cursor-pointer">
+                                Share with Institute (Public)
+                            </label>
+                        </div>
+                    )}
                     <div className="flex justify-end gap-2">
                         <button
                             type="button"

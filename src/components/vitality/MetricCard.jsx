@@ -2,6 +2,24 @@ import React from 'react';
 import { Plus, Minus } from 'lucide-react';
 import clsx from 'clsx';
 
+const COLORS = {
+    orange: {
+        iconBg: 'bg-orange-500/10',
+        iconText: 'text-orange-500',
+        bar: 'bg-orange-500'
+    },
+    blue: {
+        iconBg: 'bg-blue-500/10',
+        iconText: 'text-blue-500',
+        bar: 'bg-blue-500'
+    },
+    indigo: {
+        iconBg: 'bg-indigo-500/10',
+        iconText: 'text-indigo-500',
+        bar: 'bg-indigo-500'
+    }
+};
+
 export default function MetricCard({
     title,
     value,
@@ -14,12 +32,14 @@ export default function MetricCard({
     step = 1
 }) {
     const percentage = target ? Math.min((value / target) * 100, 100) : 0;
+    const isCompleted = target && value >= target;
+    const colorClasses = COLORS[color] || COLORS.blue;
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col justify-between hover:border-slate-700 transition-colors">
+        <div className={`bg-slate-900 border border-slate-800 rounded-xl p-4 md:p-6 flex flex-col justify-between hover:border-slate-700 transition-colors ${isCompleted ? 'border-green-500/30 bg-green-500/5' : ''}`}>
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                    <div className={clsx("p-2 rounded-lg", `bg-${color}-500/10 text-${color}-500`)}>
+                    <div className={clsx("p-2 rounded-lg", colorClasses.iconBg, colorClasses.iconText)}>
                         <Icon className="w-6 h-6" />
                     </div>
                     <div>
@@ -36,12 +56,18 @@ export default function MetricCard({
                 </div>
 
                 {/* Progress Bar */}
-                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-2 bg-slate-800 rounded-full overflow-hidden mb-2">
                     <div
-                        className={clsx("h-full rounded-full transition-all duration-500", `bg-${color}-500`)}
+                        className={clsx("h-full rounded-full transition-all duration-500", isCompleted ? 'bg-green-500' : colorClasses.bar)}
                         style={{ width: `${percentage}%` }}
                     />
                 </div>
+
+                {isCompleted && (
+                    <p className="text-xs font-bold text-green-500 flex items-center gap-1 animate-pulse">
+                        🎉 Target Achieved!
+                    </p>
+                )}
             </div>
 
             <div className="flex gap-2">
@@ -53,10 +79,7 @@ export default function MetricCard({
                 </button>
                 <button
                     onClick={() => onIncrease(step)}
-                    className={clsx(
-                        "flex-1 py-2 rounded-lg transition-colors flex items-center justify-center text-white",
-                        `bg-${color}-600 hover:bg-${color}-700`
-                    )}
+                    className="flex-1 py-2 rounded-lg transition-colors flex items-center justify-center text-white bg-blue-600 hover:bg-blue-700"
                 >
                     <Plus className="w-4 h-4" />
                 </button>

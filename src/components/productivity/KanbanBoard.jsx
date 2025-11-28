@@ -32,7 +32,7 @@ export default function KanbanBoard({ tasks, onStatusChange, onDeleteTask }) {
                         key={col.id}
                         onDragOver={handleDragOver}
                         onDrop={(e) => handleDrop(e, col.id)}
-                        className="flex flex-col h-full min-w-[280px]"
+                        className="flex flex-col h-full min-w-[250px] md:min-w-[280px]"
                     >
                         <div className={clsx("flex items-center justify-between mb-4 pb-2 border-b-2", col.color)}>
                             <h3 className="font-bold text-slate-300">{col.title}</h3>
