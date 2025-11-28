@@ -31,7 +31,7 @@ export function useAuth() {
                 redirectTo: `${window.location.origin}/dashboard`,
                 queryParams: {
                     access_type: 'offline',
-                    prompt: 'select_account',
+                    prompt: 'consent select_account',
                 },
             },
         });
