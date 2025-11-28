@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import AuthLayout from '../components/layout/AuthLayout';
 import { Mail, Lock, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-    const { signInWithEmail, signInWithGoogle, signUp } = useAuth();
+    const { signInWithEmail, signInWithGoogle, signUp, user } = useAuth();
+    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,6 +26,7 @@ export default function LoginPage() {
         try {
             if (isLogin) {
                 await signInWithEmail(email, password);
+                navigate('/dashboard');
             } else {
                 await signUp(email, password);
                 setError('Check your email for the confirmation link!');
