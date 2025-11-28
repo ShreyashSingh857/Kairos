@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Utensils, Search, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { format } from 'date-fns';
@@ -153,7 +154,7 @@ export default function DietTracker({ onUpdate }) {
 
         if (error) {
             console.error('Error adding food log:', error);
-            alert('Failed to add food log');
+            toast.error('Failed to add food log');
         } else {
             const updatedLogs = [...logs, data];
             setLogs(updatedLogs);

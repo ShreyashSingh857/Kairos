@@ -15,7 +15,10 @@ export default function AppLayout({ children }) {
                 >
                     <Menu className="w-6 h-6" />
                 </button>
-                <span className="ml-4 text-xl font-bold text-white">Kairos</span>
+                <div className="ml-4 flex items-center gap-2">
+                    <img src="/logo.png" alt="Kairos" className="w-8 h-8 rounded-md" />
+                    <span className="text-xl font-bold text-white">Kairos</span>
+                </div>
             </div>
 
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />

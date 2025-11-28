@@ -14,7 +14,7 @@ export default function Sidebar({ isOpen, onClose }) {
     };
 
     const navItems = [
-        { to: '/', icon: Home, label: 'Dashboard' },
+        { to: '/dashboard', icon: Home, label: 'Dashboard' },
         { to: '/academic', icon: BookOpen, label: 'Academic' },
         { to: '/productivity', icon: CheckSquare, label: 'Productivity' },
         { to: '/vitality', icon: Activity, label: 'Vitality' },

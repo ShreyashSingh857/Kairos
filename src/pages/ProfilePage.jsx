@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Save, Loader2, Activity, Building2, Check, Camera, Upload, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import { useInstitutions } from '../hooks/useInstitutions';
@@ -103,7 +104,7 @@ export default function ProfilePage() {
             }
         } catch (err) {
             console.error("Error accessing camera:", err);
-            alert("Could not access camera. Please check permissions.");
+            toast.error("Could not access camera. Please check permissions.");
             setShowCamera(false);
         }
     };
@@ -155,7 +156,7 @@ export default function ProfilePage() {
             const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
             setProfile(prev => ({ ...prev, avatar_url: data.publicUrl }));
         } catch (error) {
-            alert('Error uploading avatar: ' + error.message);
+            toast.error('Error uploading avatar: ' + error.message);
         } finally {
             setUploadingAvatar(false);
         }
@@ -183,7 +184,7 @@ export default function ProfilePage() {
                     // So we trust the ID if it's set.
                     finalInstitutionId = profile.institution_id;
                 } else {
-                    alert("Please select a valid institution from the list.");
+                    toast.error("Please select a valid institution from the list.");
                     setSaving(false);
                     return;
                 }
@@ -214,10 +215,10 @@ export default function ProfilePage() {
                 }
                 throw error;
             }
-            alert('Profile updated successfully!');
+            toast.success('Profile updated successfully!');
         } catch (error) {
             console.error('Error updating profile:', error);
-            alert(error.message || 'Failed to update profile.');
+            toast.error(error.message || 'Failed to update profile.');
         } finally {
             setSaving(false);
         }
@@ -246,11 +247,11 @@ export default function ProfilePage() {
                 if (error) console.error('Chunk error:', error);
             }
 
-            alert(`Database synced! Processed ${uniqueColleges.length} colleges.`);
+            toast.success(`Database synced! Processed ${uniqueColleges.length} colleges.`);
             window.location.reload();
         } catch (err) {
             console.error('Sync failed:', err);
-            alert('Sync failed. Check console.');
+            toast.error('Sync failed. Check console.');
         } finally {
             setSaving(false);
         }

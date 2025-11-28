@@ -7,20 +7,24 @@ import AcademicHub from './pages/AcademicHub';
 import VitalityHub from './pages/VitalityHub';
 import ProductivityHub from './pages/ProductivityHub';
 import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
 import ProfilePage from './pages/ProfilePage';
+import { Toaster } from 'react-hot-toast';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster position="top-right" />
       <Router>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
 
           {/* Protected Routes wrapped in AppLayout */}
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <AppLayout>

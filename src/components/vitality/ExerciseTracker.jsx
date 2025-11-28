@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Dumbbell, Activity, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { format } from 'date-fns';
@@ -91,7 +92,7 @@ export default function ExerciseTracker({ userWeight, onUpdate }) {
         }
 
         if (finalDuration <= 0) {
-            alert('Please enter valid duration or sets');
+            toast.error('Please enter valid duration or sets');
             return;
         }
 
@@ -112,7 +113,7 @@ export default function ExerciseTracker({ userWeight, onUpdate }) {
 
         if (error) {
             console.error('Error adding exercise log:', error);
-            alert('Failed to add exercise log');
+            toast.error('Failed to add exercise log');
         } else {
             const updatedLogs = [...logs, data];
             setLogs(updatedLogs);

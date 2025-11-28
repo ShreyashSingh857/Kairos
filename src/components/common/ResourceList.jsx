@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FileText, Image, Link as LinkIcon, File, Trash2, Plus, ExternalLink } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useResources } from '../../hooks/useResources';
 
 export default function ResourceList({ projectId, chapterId }) {
@@ -29,7 +30,7 @@ export default function ResourceList({ projectId, chapterId }) {
             setSelectedFile(null);
         } catch (error) {
             console.error("Failed to add resource:", error);
-            alert("Failed to add resource. Please try again.");
+            toast.error("Failed to add resource. Please try again.");
         } finally {
             setIsUploading(false);
         }

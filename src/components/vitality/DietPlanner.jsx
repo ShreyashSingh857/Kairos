@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, ChevronLeft, ChevronRight, Utensils } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -55,7 +56,7 @@ export default function DietPlanner() {
 
         if (error) {
             console.error('Error adding meal:', error);
-            alert('Failed to add meal');
+            toast.error('Failed to add meal');
         } else {
             setMeals([...meals, data]);
             setNewMeal({ type: 'Breakfast', name: '', calories: '', protein: '', carbs: '', fats: '' });
